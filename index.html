@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>NutriPlan – Tu Plan Alimenticio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F1A14;
+  --bg2: #162019;
+  --card: #1E2D23;
+  --card2: #243329;
+  --sage: #7EC89A;
+  --sage-dim: #4A8C62;
+  --gold: #E8B86D;
+  --gold-dim: #A07840;
+  --clay: #D4785A;
+  --cream: #F2EDE4;
+  --text: #EDF5EE;
+  --muted: #7A9E82;
+  --border: #2A3D2F;
+  --casino: #C17F3A;
+  --radius: 18px;
+  --radius-sm: 12px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── SPLASH SCREEN ── */
+#splash {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+  animation: splashOut 0.5s ease 2.2s forwards;
+}
+@keyframes splashOut { to { opacity:0; pointer-events:none; } }
+
+.logo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  animation: logoIn 0.7s cubic-bezier(.34,1.56,.64,1) 0.3s both;
+}
+@keyframes logoIn { from { opacity:0; transform:scale(0.6) translateY(30px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+.logo-circle {
+  width: 110px; height: 110px;
+  background: linear-gradient(135deg, #2A4A32 0%, #1A3022 100%);
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(126,200,154,0.2), 0 20px 60px rgba(0,0,0,0.6);
+}
+.logo-circle::after {
+  content: '';
+  position: absolute; inset: 1px;
+  border-radius: 27px;
+  background: linear-gradient(135deg, rgba(126,200,154,0.08) 0%, transparent 60%);
+}
+.logo-leaf {
+  font-size: 54px;
+  filter: drop-shadow(0 4px 12px rgba(126,200,154,0.4));
+}
+.logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--sage), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-tagline {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: -14px;
+}
+.splash-bar {
+  margin-top: 50px;
+  width: 120px; height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  animation: fadeIn 0.4s 0.9s both;
+}
+.splash-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sage), var(--gold));
+  border-radius: 3px;
+  animation: barFill 1.5s ease 0.9s both;
+}
+@keyframes barFill { from { width:0; } to { width:100%; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* ── APP SHELL ── */
+#app {
+  display: flex; flex-direction: column;
+  height: 100dvh; height: 100vh;
+  max-width: 430px; margin: 0 auto;
+  opacity: 0;
+  animation: fadeIn 0.4s ease 2.5s forwards;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  flex-shrink: 0;
+  padding: 14px 20px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 9px;
+}
+.topbar-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #2A4A32, #1A3022);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 0 1px rgba(126,200,154,0.2);
+}
+.topbar-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--sage), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.topbar-right {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.4;
+}
+.topbar-right strong { color: var(--gold); font-size: 12px; display: block; }
+
+/* ── DAY SELECTOR ── */
+.day-selector {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  display: flex; gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.day-selector::-webkit-scrollbar { display: none; }
+.day-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.day-btn span.day-abbr { font-size: 13px; font-weight: 700; }
+.day-btn span.day-kcal { font-size: 9px; font-weight: 400; opacity: 0.7; }
+.day-btn.active {
+  background: linear-gradient(135deg, var(--sage-dim), #2E5C3E);
+  border-color: var(--sage);
+  color: var(--text);
+  box-shadow: 0 4px 16px rgba(126,200,154,0.25);
+}
+
+/* ── MAIN SCROLL AREA ── */
+.main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding: 0 0 80px;
+}
+.main-scroll::-webkit-scrollbar { display: none; }
+
+/* ── DAY VIEWS ── */
+.day-view { display: none; }
+.day-view.active { display: block; }
+
+/* ── DAY HEADER ── */
+.day-header {
+  padding: 18px 20px 14px;
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+}
+.day-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+.day-header h2 em { font-style: italic; color: var(--sage); }
+.day-header .day-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.day-macros {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 12px;
+}
+.macro-chip {
+  padding: 5px 11px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  border: 1px solid;
+}
+.macro-chip.ok { background: rgba(126,200,154,0.1); border-color: rgba(126,200,154,0.3); color: var(--sage); }
+.macro-chip.warn { background: rgba(232,184,109,0.1); border-color: rgba(232,184,109,0.3); color: var(--gold); }
+
+/* ── MEAL CARDS ── */
+.meals-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.meal-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.meal-card.casino { border-color: rgba(193,127,58,0.4); }
+.meal-card.open { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+.meal-card-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+.meal-time {
+  font-size: 11px; font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: rgba(126,200,154,0.15);
+  color: var(--sage);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.meal-time.casino { background: rgba(193,127,58,0.15); color: var(--casino); }
+.meal-icon { font-size: 22px; flex-shrink: 0; }
+.meal-info { flex: 1; min-width: 0; }
+.meal-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.meal-kcal {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.meal-toggle {
+  font-size: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform 0.25s;
+  line-height: 1;
+}
+.meal-card.open .meal-toggle { transform: rotate(45deg); color: var(--sage); }
+
+.meal-body {
+  display: none;
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--border);
+}
+.meal-card.open .meal-body { display: block; }
+
+/* ── FOOD ITEMS ── */
+.food-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(42,61,47,0.6);
+}
+.food-item:last-of-type { border-bottom: none; }
+
+.food-hand {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  background: var(--card2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  border: 1px solid var(--border);
+}
+.food-main { flex: 1; min-width: 0; }
+.food-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.35; }
+.food-ref { font-size: 11px; color: var(--sage); margin-top: 2px; font-style: italic; }
+.food-right { flex-shrink: 0; text-align: right; }
+.food-weight {
+  font-size: 12px; font-weight: 700;
+  color: var(--gold);
+  background: rgba(232,184,109,0.1);
+  border: 1px solid rgba(232,184,109,0.25);
+  padding: 3px 8px; border-radius: 8px;
+  white-space: nowrap;
+}
+.food-kcal { font-size: 10px; color: var(--muted); margin-top: 3px; text-align: center; }
+
+.meal-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(126,200,154,0.06);
+  border-left: 3px solid var(--sage-dim);
+  border-radius: 0 10px 10px 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── CASINO RULES ── */
+.casino-label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700;
+  color: var(--casino);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 10px 0 8px;
+  padding: 4px 10px;
+  background: rgba(193,127,58,0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(193,127,58,0.25);
+}
+.casino-rule {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  color: var(--text);
+  border-bottom: 1px solid rgba(42,61,47,0.5);
+  line-height: 1.4;
+}
+.casino-rule:last-of-type { border-bottom: none; }
+.casino-rule .cr-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── HAND GUIDE SHEET ── */
+.hand-guide-btn {
+  margin: 14px 16px 0;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px dashed var(--sage-dim);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  font-size: 13px; color: var(--sage);
+  font-weight: 600;
+  width: calc(100% - 32px);
+  transition: background 0.2s;
+}
+.hand-guide-btn:active { background: var(--card2); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: rgba(15,26,20,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  display: flex; justify-content: space-around;
+  z-index: 100;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; padding: 4px 20px;
+  border-radius: 12px;
+  transition: all 0.15s;
+  background: transparent; border: none;
+  color: var(--muted);
+}
+.nav-item.active { color: var(--sage); }
+.nav-item .nav-icon { font-size: 22px; line-height: 1; }
+.nav-item .nav-label { font-size: 10px; font-weight: 600; font-family: 'Nunito', sans-serif; }
+
+/* ── SCREENS ── */
+.screen { display: none; flex-direction: column; height: 100%; }
+.screen.active { display: flex; }
+
+/* ── GUÍA DE MANOS ── */
+#screen-guide {
+  background: var(--bg);
+}
+.screen-title {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+.screen-title em { font-style: italic; color: var(--sage); }
+
+.guide-scroll { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; scrollbar-width: none; }
+.guide-scroll::-webkit-scrollbar { display: none; }
+
+.hand-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 16px;
+}
+.hand-emoji {
+  font-size: 48px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.hand-info { flex: 1; }
+.hand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+}
+.hand-measure {
+  font-size: 13px; font-weight: 700;
+  color: var(--gold);
+  margin: 3px 0;
+}
+.hand-examples {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── RESUMEN NUTRICIONAL ── */
+#screen-summary {
+  background: var(--bg);
+}
+.summary-scroll { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px; scrollbar-width: none; }
+.summary-scroll::-webkit-scrollbar { display: none; }
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+.summary-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 700;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row .label { color: var(--muted); }
+.summary-row .value { font-weight: 700; }
+.summary-row .value.ok { color: var(--sage); }
+.summary-row .value.warn { color: var(--gold); }
+.bar-wrap { height: 6px; background: var(--border); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; }
+
+.tip-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.tip-icon { font-size: 24px; flex-shrink: 0; }
+.tip-body {}
+.tip-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.tip-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--card);
+  border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 430px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 0 0 40px;
+  animation: sheetUp 0.3s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 12px auto 18px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700;
+  padding: 0 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-content { padding: 16px 20px; }
+
+/* ── UTILITIES ── */
+.section-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--muted);
+  padding: 14px 0 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo-wrap">
+    <div class="logo-circle"><span class="logo-leaf">🌿</span></div>
+    <div>
+      <div class="logo-name">NutriPlan</div>
+      <div class="logo-tagline">Plan Semaglutida · Chile</div>
+    </div>
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SCREEN: PLAN -->
+  <div class="screen active" id="screen-plan">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-logo">
+        <div class="topbar-icon">🌿</div>
+        <span class="topbar-name">NutriPlan</span>
+      </div>
+      <div class="topbar-right">
+        <strong>🍂 Otoño 2026</strong>
+        Semaglutida · Chile
+      </div>
+    </div>
+
+    <!-- DAY SELECTOR -->
+    <div class="day-selector">
+      <button class="day-btn active" onclick="showDay(0,this)"><span class="day-abbr">Lun</span><span class="day-kcal">1.523k</span></button>
+      <button class="day-btn" onclick="showDay(1,this)"><span class="day-abbr">Mar</span><span class="day-kcal">1.557k</span></button>
+      <button class="day-btn" onclick="showDay(2,this)"><span class="day-abbr">Mié</span><span class="day-kcal">1.650k</span></button>
+      <button class="day-btn" onclick="showDay(3,this)"><span class="day-abbr">Jue</span><span class="day-kcal">1.590k</span></button>
+      <button class="day-btn" onclick="showDay(4,this)"><span class="day-abbr">Vie</span><span class="day-kcal">1.624k</span></button>
+      <button class="day-btn" onclick="showDay(5,this)"><span class="day-abbr">Sáb</span><span class="day-kcal">1.426k</span></button>
+      <button class="day-btn" onclick="showDay(6,this)"><span class="day-abbr">Dom</span><span class="day-kcal">1.516k</span></button>
+    </div>
+
+    <!-- SCROLL -->
+    <div class="main-scroll" id="plan-scroll">
+
+      <!-- ══ LUNES ══ -->
+      <div class="day-view active" id="day-0">
+        <div class="day-header">
+          <h2>Lunes <em>·</em> Plan completo</h2>
+          <div class="day-subtitle">🐟 Día con salmón — máximo omega-3</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.523 kcal</span>
+            <span class="macro-chip ok">✅ 100.6g proteína</span>
+            <span class="macro-chip ok">✅ 21.1g fibra</span>
+            <span class="macro-chip ok">✅ Sodio 1.278mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+
+          <!-- Desayuno -->
+          <div class="meal-card open">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">7:30</span>
+              <span class="meal-icon">☀️</span>
+              <div class="meal-info">
+                <div class="meal-name">Desayuno</div>
+                <div class="meal-kcal">~247 kcal · Huevos con merkén</div>
+              </div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item">
+                <div class="food-hand" title="Puño cerrado">✊</div>
+                <div class="food-main">
+                  <div class="food-name">🥚 Huevos revueltos con tomate, cebollín y merkén</div>
+                  <div class="food-ref">✊ Puño cerrado = tamaño en el plato</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">2 unid · 100g</div>
+                  <div class="food-kcal">140 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">🤏</div>
+                <div class="food-main">
+                  <div class="food-name">🍞 Pan de molde integral tostado</div>
+                  <div class="food-ref">☝️ Grosor del meñique</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 rebanada · 30g</div>
+                  <div class="food-kcal">80 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">☝️</div>
+                <div class="food-main">
+                  <div class="food-name">🌱 Linaza molida (sobre el revuelto)</div>
+                  <div class="food-ref">☝️ 1 cucharadita = largo del índice</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 cdta · 5g</div>
+                  <div class="food-kcal">37 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">✊</div>
+                <div class="food-main">
+                  <div class="food-name">☕ Café sin azúcar</div>
+                  <div class="food-ref">✊ 1 taza = tu puño</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">200 ml</div>
+                  <div class="food-kcal">~5 kcal</div>
+                </div>
+              </div>
+              <div class="meal-note">🌶️ El merkén da sabor sin sal extra. Come antes del café.</div>
+            </div>
+          </div>
+
+          <!-- Colación AM -->
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">10:30</span>
+              <span class="meal-icon">🍊</span>
+              <div class="meal-info">
+                <div class="meal-name">Colación AM</div>
+                <div class="meal-kcal">~132 kcal · Naranja + almendras</div>
+              </div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item">
+                <div class="food-hand">✊</div>
+                <div class="food-main">
+                  <div class="food-name">🍊 Naranja entera (plena temporada mayo)</div>
+                  <div class="food-ref">✊ 1 naranja = cabe en tu puño</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 unid · 130g</div>
+                  <div class="food-kcal">62 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">🤏</div>
+                <div class="food-main">
+                  <div class="food-name">🌰 Almendras</div>
+                  <div class="food-ref">🤏 10 almendras = llenan tu palma superficialmente</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">10 unid · 14g</div>
+                  <div class="food-kcal">70 kcal</div>
+                </div>
+              </div>
+              <div class="meal-note">Fácil de llevar al trabajo. Si no hay hambre, omite las almendras.</div>
+            </div>
+          </div>
+
+          <!-- Casino -->
+          <div class="meal-card casino">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time casino">13:00</span>
+              <span class="meal-icon">🏢</span>
+              <div class="meal-info">
+                <div class="meal-name">Almuerzo Casino</div>
+                <div class="meal-kcal">~520 kcal est. · Estrategia incluida</div>
+              </div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="casino-label">🏢 Estrategia del día</div>
+              <div class="casino-rule"><span class="cr-icon">🖐️</span><span><strong>Proteína:</strong> palma abierta = ~120–150g cocido (pollo, pavo, pescado)</span></div>
+              <div class="casino-rule"><span class="cr-icon">🤲</span><span><strong>Verdura o ensalada:</strong> ambas palmas juntas = ~200g, que ocupe la mitad del plato</span></div>
+              <div class="casino-rule"><span class="cr-icon">✊</span><span><strong>Arroz, papa o fideos:</strong> no más de tu puño cerrado = ~120g cocido</span></div>
+              <div class="casino-rule"><span class="cr-icon">🔢</span><span>Come en orden: proteína → verdura → carbohidrato. Baja el peak de glucosa.</span></div>
+              <div class="casino-rule"><span class="cr-icon">🚫</span><span>Sin salsa cremosa, sin repetir, sin bebidas azucaradas</span></div>
+            </div>
+          </div>
+
+          <!-- Colación PM -->
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">17:00</span>
+              <span class="meal-icon">🥜</span>
+              <div class="meal-info">
+                <div class="meal-name">Colación PM</div>
+                <div class="meal-kcal">~219 kcal · Maní + yogurt</div>
+              </div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item">
+                <div class="food-hand">👍</div>
+                <div class="food-main">
+                  <div class="food-name">🥜 Mantequilla de maní natural (sin azúcar)</div>
+                  <div class="food-ref">👍 1 cucharadita = tamaño de tu pulgar</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 cdta · 15g</div>
+                  <div class="food-kcal">47 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">🤏</div>
+                <div class="food-main">
+                  <div class="food-name">🍞 Pan de molde integral</div>
+                  <div class="food-ref">☝️ Grosor del meñique</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 rebanada · 30g</div>
+                  <div class="food-kcal">80 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">✊</div>
+                <div class="food-main">
+                  <div class="food-name">🥛 Yogurt natural sin azúcar</div>
+                  <div class="food-ref">✊ 1 pote = cabe en tu puño</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">150g</div>
+                  <div class="food-kcal">87 kcal</div>
+                </div>
+              </div>
+              <div class="meal-note">El yogurt en colación PM sube la proteína del día a 100g+</div>
+            </div>
+          </div>
+
+          <!-- Cena -->
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">20:00</span>
+              <span class="meal-icon">🌙</span>
+              <div class="meal-info">
+                <div class="meal-name">Cena</div>
+                <div class="meal-kcal">~405 kcal · Salmón + puré camote</div>
+              </div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item">
+                <div class="food-hand">🖐️</div>
+                <div class="food-main">
+                  <div class="food-name">🐟 Salmón al horno (limón + ajo + perejil)</div>
+                  <div class="food-ref">🖐️ Palma abierta + dedos = porción ideal</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">150g cocido</div>
+                  <div class="food-kcal">248 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">✊</div>
+                <div class="food-main">
+                  <div class="food-name">🍠 Puré de camote (aceite oliva + jengibre)</div>
+                  <div class="food-ref">✊ Porción = tu puño cerrado</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">½ taza · 100g</div>
+                  <div class="food-kcal">58 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">✊</div>
+                <div class="food-main">
+                  <div class="food-name">🍅 Tomate en rodajas con cilantro</div>
+                  <div class="food-ref">✊ 1 tomate mediano = tu puño</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 unid · 100g</div>
+                  <div class="food-kcal">22 kcal</div>
+                </div>
+              </div>
+              <div class="food-item">
+                <div class="food-hand">👍</div>
+                <div class="food-main">
+                  <div class="food-name">🫒 Aceite de oliva extra virgen</div>
+                  <div class="food-ref">👍 1 cucharadita = tu pulgar</div>
+                </div>
+                <div class="food-right">
+                  <div class="food-weight">1 cdta · 5ml</div>
+                  <div class="food-kcal">40 kcal</div>
+                </div>
+              </div>
+              <div class="meal-note">🍠 El camote con jengibre es antiinflamatorio y queda cremoso con solo aceite de oliva.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ MARTES ══ -->
+      <div class="day-view" id="day-1">
+        <div class="day-header">
+          <h2>Martes <em>·</em> Plan completo</h2>
+          <div class="day-subtitle">🌮 Día tacos de pollo · linaza en desayuno</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.557 kcal</span>
+            <span class="macro-chip ok">✅ 96.2g proteína</span>
+            <span class="macro-chip ok">✅ 24.5g fibra</span>
+            <span class="macro-chip ok">✅ Sodio 919mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">7:30</span><span class="meal-icon">☀️</span>
+              <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-kcal">~174 kcal · Yogurt con plátano y linaza</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural sin azúcar</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">87 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍌 Plátano en rodajas</div><div class="food-ref">🤏 ½ plátano = largo de 3 dedos juntos</div></div><div class="food-right"><div class="food-weight">½ unid · 60g</div><div class="food-kcal">45 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">☝️</div><div class="food-main"><div class="food-name">🌱 Linaza molida (encima del yogurt)</div><div class="food-ref">☝️ 1 cucharadita = largo del índice</div></div><div class="food-right"><div class="food-weight">1 cdta · 5g</div><div class="food-kcal">37 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div><div class="food-ref">✊ 1 taza = tu puño</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div>
+              <div class="meal-note">🍌 Solo ½ plátano — más azúcar que otras frutas. El yogurt reduce el impacto glucémico.</div>
+            </div>
+          </div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">10:30</span><span class="meal-icon">🌰</span>
+              <div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~199 kcal · Mandarina + semillas</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍊 Mandarina</div><div class="food-ref">✊ 1 mandarina = cabe en tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">47 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de maravilla</div><div class="food-ref">🤏 1 puñado = palma cerrada a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">82 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌰 Almendras</div><div class="food-ref">🤏 10 unidades = cubren tu palma</div></div><div class="food-right"><div class="food-weight">10 unid · 14g</div><div class="food-kcal">70 kcal</div></div></div>
+            </div>
+          </div>
+          <div class="meal-card casino">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time casino">13:00</span><span class="meal-icon">🏢</span>
+              <div class="meal-info"><div class="meal-name">Almuerzo Casino</div><div class="meal-kcal">~520 kcal est.</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="casino-label">🍽️ Estrategia del día</div>
+              <div class="casino-rule"><span class="cr-icon">🖐️</span><span>Proteína: palma abierta (~120–150g cocido)</span></div>
+              <div class="casino-rule"><span class="cr-icon">🫀</span><span>Si hay ensalada de betarraga: tómala — es de temporada</span></div>
+              <div class="casino-rule"><span class="cr-icon">🥣</span><span>Si hay cazuela: excelente — come el caldo, la carne y las verduras completas</span></div>
+              <div class="casino-rule"><span class="cr-icon">✊</span><span>Papa o fideos: no más de tu puño cerrado</span></div>
+            </div>
+          </div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">17:00</span><span class="meal-icon">🍫</span>
+              <div class="meal-info"><div class="meal-name">Colación PM</div><div class="meal-kcal">~119 kcal · Chocolate negro</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍫 Chocolate negro 70%+</div><div class="food-ref">🤏 2 cuadros = largo del dedo índice</div></div><div class="food-right"><div class="food-weight">20g · 2 cuadros</div><div class="food-kcal">114 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div><div class="food-ref">✊ 1 taza = tu puño</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div>
+            </div>
+          </div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">20:00</span><span class="meal-icon">🌙</span>
+              <div class="meal-info"><div class="meal-name">Cena</div><div class="meal-kcal">~545 kcal · Tacos de pollo</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🍗 Pollo desmenuzado (merkén + pimentón + cilantro)</div><div class="food-ref">🖐️ Palma abierta + dedos</div></div><div class="food-right"><div class="food-weight">150g cocido</div><div class="food-kcal">185 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🌮 Tortillas de maíz (calentar en sartén seca)</div><div class="food-ref">🖐️ 1 tortilla = diámetro de tu mano abierta</div></div><div class="food-right"><div class="food-weight">2 unid · 50g</div><div class="food-kcal">120 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🥑 Palta en rodajas</div><div class="food-ref">🤏 ¼ palta = 2 dedos de grosor de media palta</div></div><div class="food-right"><div class="food-weight">¼ palta · 50g</div><div class="food-kcal">80 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍅 Tomate picado con cilantro</div><div class="food-ref">✊ 1 tomate = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">22 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural (postre)</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">87 kcal</div></div></div>
+              <div class="meal-note">🌮 Calienta las tortillas 30 seg en sartén seca. Menor IG que el pan.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MIERCOLES ══ -->
+      <div class="day-view" id="day-2">
+        <div class="day-header">
+          <h2>Miércoles <em>·</em> Plan completo</h2>
+          <div class="day-subtitle">🫘 Día de porotos guisados — máxima fibra</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.650 kcal</span>
+            <span class="macro-chip warn">⚠️ 87g prot. (casino variable)</span>
+            <span class="macro-chip ok">✅ 41.5g fibra ⭐</span>
+            <span class="macro-chip ok">✅ Sodio 1.144mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open">
+            <div class="meal-card-header" onclick="toggleCard(this)">
+              <span class="meal-time">7:30</span><span class="meal-icon">☀️</span>
+              <div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-kcal">~385 kcal · Huevo + palta</div></div>
+              <span class="meal-toggle">+</span>
+            </div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥚 Huevos pochados o a la copa</div><div class="food-ref">✊ 2 huevos = tu puño en el plato</div></div><div class="food-right"><div class="food-weight">2 unid · 100g</div><div class="food-kcal">140 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🥑 Palta aplastada con limón y sal</div><div class="food-ref">🖐️ ½ palta = cabe en tu palma abierta</div></div><div class="food-right"><div class="food-weight">½ palta · 100g</div><div class="food-kcal">160 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍞 Pan de molde integral tostado</div><div class="food-ref">☝️ Grosor del meñique</div></div><div class="food-right"><div class="food-weight">1 rebanada · 30g</div><div class="food-kcal">80 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div><div class="food-ref">✊ 1 taza = tu puño</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div>
+            </div>
+          </div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">10:30</span><span class="meal-icon">🍊</span><div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~132 kcal · Naranja + almendras</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍊 Naranja entera</div><div class="food-ref">✊ 1 naranja = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 130g</div><div class="food-kcal">62 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌰 Almendras</div><div class="food-ref">🤏 10 unidades = cubren tu palma</div></div><div class="food-right"><div class="food-weight">10 unid · 14g</div><div class="food-kcal">70 kcal</div></div></div></div></div>
+          <div class="meal-card casino"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time casino">13:00</span><span class="meal-icon">🏢</span><div class="meal-info"><div class="meal-name">Almuerzo Casino</div><div class="meal-kcal">~520 kcal est.</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="casino-label">🍽️ Estrategia del día</div><div class="casino-rule"><span class="cr-icon">🖐️</span><span>Cualquier proteína: palma abierta (~120–150g)</span></div><div class="casino-rule"><span class="cr-icon">🤲</span><span>Verdura o ensalada: ambas palmas juntas (~200g)</span></div><div class="casino-rule"><span class="cr-icon">✊</span><span>Carbohidrato: no más de tu puño cerrado</span></div><div class="casino-rule"><span class="cr-icon">🌽</span><span>Si hay choclo o betarraga: aprovéchalas, son de temporada</span></div><div class="meal-note">⚠️ Miércoles: si el casino da poca proteína, agrega atún a la cena.</div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">17:00</span><span class="meal-icon">🥑</span><div class="meal-info"><div class="meal-name">Colación PM</div><div class="meal-kcal">~175 kcal · Palta + semillas</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🥑 Palta con limón y sal</div><div class="food-ref">🤏 ¼ palta = 2 dedos de grosor</div></div><div class="food-right"><div class="food-weight">¼ palta · 50g</div><div class="food-kcal">80 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de zapallo tostadas</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">90 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">20:00</span><span class="meal-icon">🌙</span><div class="meal-info"><div class="meal-name">Cena</div><div class="meal-kcal">~438 kcal · Porotos + atún</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🫘 Porotos guisados (cebolla + zanahoria + pimentón + orégano)</div><div class="food-ref">✊ 1 taza = tu puño cerrado. Sin embutidos.</div></div><div class="food-right"><div class="food-weight">1 taza · 240g</div><div class="food-kcal">245 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🐟 Atún en agua (mezclado en los porotos)</div><div class="food-ref">🖐️ ½ lata = cabe en tu palma</div></div><div class="food-right"><div class="food-weight">50g escurrido</div><div class="food-kcal">55 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍅 Tomate con cebollín y perejil</div><div class="food-ref">✊ 1 tomate = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">22 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🫒 Aceite de oliva extra virgen</div><div class="food-ref">👍 1 cucharadita = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 5ml</div><div class="food-kcal">40 kcal</div></div></div>
+              <div class="meal-note">🫘 Deja los porotos remojando desde la mañana. El atún en los porotos es delicioso y sube la proteína.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ JUEVES ══ -->
+      <div class="day-view" id="day-3">
+        <div class="day-header">
+          <h2>Jueves <em>·</em> Plan completo</h2>
+          <div class="day-subtitle">🎃 Sopa de zapallo con jengibre — prepara doble</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.590 kcal</span>
+            <span class="macro-chip ok">✅ 101.8g proteína</span>
+            <span class="macro-chip ok">✅ 22.2g fibra</span>
+            <span class="macro-chip ok">✅ Sodio 1.084mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">7:30</span><span class="meal-icon">☀️</span><div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-kcal">~258 kcal · Yogurt + mandarina + linaza</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural sin azúcar</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">87 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍊 Mandarina en gajos encima</div><div class="food-ref">✊ 1 mandarina = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">47 kcal</div></div></div><div class="food-item"><div class="food-hand">☝️</div><div class="food-main"><div class="food-name">🌱 Linaza molida</div><div class="food-ref">☝️ 1 cucharadita = largo del índice</div></div><div class="food-right"><div class="food-weight">1 cdta · 5g</div><div class="food-kcal">37 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de maravilla</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">82 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">10:30</span><span class="meal-icon">🥜</span><div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~197 kcal · Maní + pan + almendras</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🥜 Mantequilla de maní (sin azúcar)</div><div class="food-ref">👍 1 cdta = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 15g</div><div class="food-kcal">47 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍞 Pan de molde integral</div><div class="food-ref">☝️ Grosor del meñique</div></div><div class="food-right"><div class="food-weight">1 rebanada · 30g</div><div class="food-kcal">80 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌰 Almendras</div><div class="food-ref">🤏 10 unidades = cubren tu palma</div></div><div class="food-right"><div class="food-weight">10 unid · 14g</div><div class="food-kcal">70 kcal</div></div></div></div></div>
+          <div class="meal-card casino"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time casino">13:00</span><span class="meal-icon">🏢</span><div class="meal-info"><div class="meal-name">Almuerzo Casino</div><div class="meal-kcal">~520 kcal est.</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="casino-label">🍽️ Estrategia del día</div><div class="casino-rule"><span class="cr-icon">🍂</span><span>Si hay charquicán: ideal — zapallo + papa + zanahoria + proteína</span></div><div class="casino-rule"><span class="cr-icon">🖐️</span><span>Proteína: palma abierta (~120–150g). Carbohidrato: puño cerrado.</span></div><div class="casino-rule"><span class="cr-icon">🤲</span><span>Verdura: ambas palmas juntas = la mitad del plato</span></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">17:00</span><span class="meal-icon">🍫</span><div class="meal-info"><div class="meal-name">Colación PM</div><div class="meal-kcal">~119 kcal · Chocolate negro</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍫 Chocolate negro 70%+</div><div class="food-ref">🤏 2 cuadros = largo del índice</div></div><div class="food-right"><div class="food-weight">20g · 2 cuadros</div><div class="food-kcal">114 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">20:00</span><span class="meal-icon">🌙</span><div class="meal-info"><div class="meal-name">Cena</div><div class="meal-kcal">~516 kcal · Sopa zapallo + pollo + yogurt</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🍗 Pollo desmenuzado (encima de la sopa)</div><div class="food-ref">🖐️ Palma abierta + dedos</div></div><div class="food-right"><div class="food-weight">150g cocido</div><div class="food-kcal">185 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🎃 Crema de zapallo camote (caldo + jengibre + ajo)</div><div class="food-ref">✊ 1 taza = tu puño cerrado</div></div><div class="food-right"><div class="food-weight">1 taza · 240g</div><div class="food-kcal">49 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de zapallo tostadas (encima)</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">90 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🫒 Aceite de oliva extra virgen</div><div class="food-ref">👍 1 cucharadita = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 5ml</div><div class="food-kcal">40 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural (postre)</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">87 kcal</div></div></div>
+              <div class="meal-note">🍂 Prepara el doble de sopa — rinde para el sábado. El jengibre fresco rallado es clave.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VIERNES ══ -->
+      <div class="day-view" id="day-4">
+        <div class="day-header">
+          <h2>Viernes <em>·</em> Plan completo</h2>
+          <div class="day-subtitle">🫙 Lentejas + pavo — máxima fibra y proteína</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.624 kcal</span>
+            <span class="macro-chip ok">✅ 102.6g proteína</span>
+            <span class="macro-chip ok">✅ 39.7g fibra ⭐</span>
+            <span class="macro-chip ok">✅ Sodio 1.184mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">7:30</span><span class="meal-icon">☀️</span><div class="meal-info"><div class="meal-name">Desayuno</div><div class="meal-kcal">~256 kcal · Huevos con cilantro</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥚 Huevos revueltos con pimentón y cilantro</div><div class="food-ref">✊ 2 huevos = tu puño en el plato</div></div><div class="food-right"><div class="food-weight">2 unid · 100g</div><div class="food-kcal">140 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍞 Pan de molde integral tostado</div><div class="food-ref">☝️ Grosor del meñique</div></div><div class="food-right"><div class="food-weight">1 rebanada · 30g</div><div class="food-kcal">80 kcal</div></div></div><div class="food-item"><div class="food-hand">☝️</div><div class="food-main"><div class="food-name">🌱 Linaza molida</div><div class="food-ref">☝️ 1 cucharadita = largo del índice</div></div><div class="food-right"><div class="food-weight">1 cdta · 5g</div><div class="food-kcal">37 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">10:30</span><span class="meal-icon">🍌</span><div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~115 kcal · Plátano + almendras</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍌 Plátano</div><div class="food-ref">🤏 ½ plátano = 3 dedos de largo</div></div><div class="food-right"><div class="food-weight">½ unid · 60g</div><div class="food-kcal">45 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌰 Almendras</div><div class="food-ref">🤏 10 unidades = cubren tu palma</div></div><div class="food-right"><div class="food-weight">10 unid · 14g</div><div class="food-kcal">70 kcal</div></div></div></div></div>
+          <div class="meal-card casino"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time casino">13:00</span><span class="meal-icon">🏢</span><div class="meal-info"><div class="meal-name">Almuerzo Casino</div><div class="meal-kcal">~520 kcal est.</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="casino-label">🍽️ Estrategia viernes</div><div class="casino-rule"><span class="cr-icon">🥣</span><span>Si hay sopa de entrada: tómala primero — protege de exagerar en el fondo</span></div><div class="casino-rule"><span class="cr-icon">🥘</span><span>Pastel de papa: come el relleno, reduce la capa de papa (½ porción superior)</span></div><div class="casino-rule"><span class="cr-icon">🖐️</span><span>Proteína: palma. Carbohidrato: puño. Verdura: ambas palmas.</span></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">17:00</span><span class="meal-icon">🥛</span><div class="meal-info"><div class="meal-name">Colación PM</div><div class="meal-kcal">~206 kcal · Yogurt + linaza + semillas</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural sin azúcar</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">87 kcal</div></div></div><div class="food-item"><div class="food-hand">☝️</div><div class="food-main"><div class="food-name">🌱 Linaza molida</div><div class="food-ref">☝️ 1 cucharadita = largo del índice</div></div><div class="food-right"><div class="food-weight">1 cdta · 5g</div><div class="food-kcal">37 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de maravilla</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">82 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">20:00</span><span class="meal-icon">🌙</span><div class="meal-info"><div class="meal-name">Cena</div><div class="meal-kcal">~527 kcal · Lentejas + pavo + betarraga</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🦃 Pavo al horno en tiras</div><div class="food-ref">🖐️ Palma abierta + dedos</div></div><div class="food-right"><div class="food-weight">80g cocido</div><div class="food-kcal">89 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🫙 Lentejas guisadas (zanahoria + pimentón + ajo + orégano)</div><div class="food-ref">✊ 1 taza = tu puño cerrado</div></div><div class="food-right"><div class="food-weight">1 taza · 240g</div><div class="food-kcal">230 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🫀 Betarraga cocida (limón + perejil)</div><div class="food-ref">✊ 1 taza = tu puño. Cocínalas el domingo.</div></div><div class="food-right"><div class="food-weight">1 taza · 140g</div><div class="food-kcal">75 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🫒 Aceite de oliva</div><div class="food-ref">👍 1 cucharadita = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 5ml</div><div class="food-kcal">40 kcal</div></div></div>
+              <div class="meal-note">🫙 Remoja las lentejas la noche del jueves — acorta la cocción a 20 minutos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SABADO ══ -->
+      <div class="day-view" id="day-5">
+        <div class="day-header">
+          <h2>Sábado <em>·</em> En casa</h2>
+          <div class="day-subtitle">🍝 Pasta integral con atún · Once chilena</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.426 kcal</span>
+            <span class="macro-chip ok">✅ ~95g proteína</span>
+            <span class="macro-chip ok">✅ ~31g fibra</span>
+            <span class="macro-chip ok">✅ Sodio ~1.300mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">8:30</span><span class="meal-icon">☀️</span><div class="meal-info"><div class="meal-name">Desayuno tranquilo</div><div class="meal-kcal">~395 kcal · Tostadas con palta y huevo</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥚 Huevo frito o a la copa (aceite mínimo)</div><div class="food-ref">✊ 1 huevo = mitad de tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 50g</div><div class="food-kcal">70 kcal</div></div></div><div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🥑 Palta aplastada con merkén y limón</div><div class="food-ref">🖐️ ½ palta = cabe en tu palma abierta</div></div><div class="food-right"><div class="food-weight">½ palta · 100g</div><div class="food-kcal">160 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍞 Pan de molde integral tostado</div><div class="food-ref">☝️ Grosor del meñique cada una</div></div><div class="food-right"><div class="food-weight">2 rebanadas · 60g</div><div class="food-kcal">160 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café con leche descremada</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">11:00</span><span class="meal-icon">🍊</span><div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~152 kcal · Naranja + semillas</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍊 Naranja entera</div><div class="food-ref">✊ 1 naranja = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 130g</div><div class="food-kcal">62 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de zapallo tostadas</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">90 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">14:00</span><span class="meal-icon">🍽️</span><div class="meal-info"><div class="meal-name">Almuerzo en casa</div><div class="meal-kcal">~356 kcal · Pasta integral con atún</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🐟 Atún en agua (lata completa)</div><div class="food-ref">🖐️ 1 lata = cabe en ambas palmas</div></div><div class="food-right"><div class="food-weight">120g escurrido</div><div class="food-kcal">132 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍝 Pasta integral al dente</div><div class="food-ref">✊ ½ taza cocida = tu puño cerrado</div></div><div class="food-right"><div class="food-weight">½ taza · 80g</div><div class="food-kcal">87 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍅 Tomate fresco + ajo + orégano (salsa fría)</div><div class="food-ref">✊ 1 tomate = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">22 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🫀 Betarraga cocida en rodajas (limón + perejil)</div><div class="food-ref">✊ 1 taza = tu puño</div></div><div class="food-right"><div class="food-weight">1 taza · 140g</div><div class="food-kcal">75 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🫒 Aceite de oliva extra virgen</div><div class="food-ref">👍 1 cucharadita = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 5ml</div><div class="food-kcal">40 kcal</div></div></div>
+              <div class="meal-note">🍝 Pasta al dente = 1–2 min menos de lo indicado. Menor índice glucémico.</div>
+            </div>
+          </div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">17:30</span><span class="meal-icon">☕</span><div class="meal-info"><div class="meal-name">Once chilena</div><div class="meal-kcal">~274 kcal · Pan + queso + chocolate</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍞 Pan de molde integral</div><div class="food-ref">☝️ Grosor del meñique</div></div><div class="food-right"><div class="food-weight">1 rebanada · 30g</div><div class="food-kcal">80 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🧀 Queso de cabra</div><div class="food-ref">🤏 30g = 2 rodajas del grosor del índice</div></div><div class="food-right"><div class="food-weight">30g</div><div class="food-kcal">75 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🍫 Chocolate negro 70%+</div><div class="food-ref">🤏 2 cuadros = largo del índice</div></div><div class="food-right"><div class="food-weight">20g · 2 cuadros</div><div class="food-kcal">114 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">20:30</span><span class="meal-icon">🌙</span><div class="meal-info"><div class="meal-name">Cena liviana</div><div class="meal-kcal">~249 kcal · Sopa + atún + yogurt</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🎃 Sopa de zapallo (sobras del jueves)</div><div class="food-ref">✊ 1 taza = tu puño cerrado</div></div><div class="food-right"><div class="food-weight">1 taza · 240g</div><div class="food-kcal">49 kcal</div></div></div><div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🐟 Atún en agua (extra proteína)</div><div class="food-ref">🖐️ ½ lata = palma de la mano</div></div><div class="food-right"><div class="food-weight">50g escurrido</div><div class="food-kcal">55 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural + linaza molida</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g + 1 cdta</div><div class="food-kcal">124 kcal</div></div></div><div class="meal-note">Cena liviana después de la once. El atún sube la proteína del sábado a ~95g.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ══ DOMINGO ══ -->
+      <div class="day-view" id="day-6">
+        <div class="day-header">
+          <h2>Domingo <em>·</em> Prep semana</h2>
+          <div class="day-subtitle">🍗 Pollo al jugo + prep dominical</div>
+          <div class="day-macros">
+            <span class="macro-chip ok">✅ 1.516 kcal</span>
+            <span class="macro-chip ok">✅ 112.1g proteína</span>
+            <span class="macro-chip ok">✅ 26.9g fibra</span>
+            <span class="macro-chip ok">✅ Sodio 881mg</span>
+          </div>
+        </div>
+        <div class="meals-list">
+          <div class="meal-card open"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">9:00</span><span class="meal-icon">☀️</span><div class="meal-info"><div class="meal-name">Desayuno tardío</div><div class="meal-kcal">~300 kcal · Omelette + palta</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥚 Omelette (pimentón + cebollín + queso de cabra)</div><div class="food-ref">✊ 2 huevos + queso = tu puño en el plato</div></div><div class="food-right"><div class="food-weight">2 unid + 30g queso</div><div class="food-kcal">215 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🥑 Palta en rodajas</div><div class="food-ref">🤏 ¼ palta = 2 dedos de grosor</div></div><div class="food-right"><div class="food-weight">¼ palta · 50g</div><div class="food-kcal">80 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">12:00</span><span class="meal-icon">🍊</span><div class="meal-info"><div class="meal-name">Colación AM</div><div class="meal-kcal">~132 kcal · Naranja + almendras</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍊 Naranja</div><div class="food-ref">✊ 1 naranja = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 130g</div><div class="food-kcal">62 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌰 Almendras</div><div class="food-ref">🤏 10 unidades = cubren tu palma</div></div><div class="food-right"><div class="food-weight">10 unid · 14g</div><div class="food-kcal">70 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">14:30</span><span class="meal-icon">🍽️</span><div class="meal-info"><div class="meal-name">Almuerzo domingo</div><div class="meal-kcal">~404 kcal · Pollo al jugo chileno</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🍗 Pollo al horno al jugo (ajo + merkén + orégano)</div><div class="food-ref">🖐️ Palma abierta + dedos. Prepara el doble.</div></div><div class="food-right"><div class="food-weight">150g cocido</div><div class="food-kcal">185 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🌽 Choclo desgranado al vapor</div><div class="food-ref">✊ ½ taza = tu puño a la mitad</div></div><div class="food-right"><div class="food-weight">½ taza · 80g</div><div class="food-kcal">66 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍚 Arroz integral</div><div class="food-ref">✊ ½ taza cocido = tu puño cerrado</div></div><div class="food-right"><div class="food-weight">½ taza · 100g</div><div class="food-kcal">108 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤲</div><div class="food-main"><div class="food-name">🍅 Ensalada chilena (tomate + cebolla + cilantro)</div><div class="food-ref">🤲 Ambas palmas juntas = ~150g</div></div><div class="food-right"><div class="food-weight">150g</div><div class="food-kcal">~25 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">👍</div><div class="food-main"><div class="food-name">🫒 Aceite de oliva</div><div class="food-ref">👍 1 cucharadita = tu pulgar</div></div><div class="food-right"><div class="food-weight">1 cdta · 5ml</div><div class="food-kcal">40 kcal</div></div></div>
+              <div class="meal-note">🍗 Guarda 150g de pollo desmenuzado para los tacos del martes y la sopa del jueves.</div>
+            </div>
+          </div>
+          <div class="meal-card"><div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">17:30</span><span class="meal-icon">☕</span><div class="meal-info"><div class="meal-name">Once / Colación</div><div class="meal-kcal">~214 kcal · Yogurt + semillas</div></div><span class="meal-toggle">+</span></div><div class="meal-body"><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🥛 Yogurt natural + linaza molida</div><div class="food-ref">✊ 1 pote = tu puño</div></div><div class="food-right"><div class="food-weight">150g + 1 cdta</div><div class="food-kcal">124 kcal</div></div></div><div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🌻 Semillas de zapallo</div><div class="food-ref">🤏 1 puñado = palma a la mitad</div></div><div class="food-right"><div class="food-weight">1 puñado · 20g</div><div class="food-kcal">90 kcal</div></div></div><div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">☕ Café sin azúcar</div></div><div class="food-right"><div class="food-weight">200 ml</div><div class="food-kcal">~5 kcal</div></div></div></div></div>
+          <div class="meal-card">
+            <div class="meal-card-header" onclick="toggleCard(this)"><span class="meal-time">20:30</span><span class="meal-icon">🌙</span><div class="meal-info"><div class="meal-name">Cena + Prep semana</div><div class="meal-kcal">~429 kcal · Tacos de atún</div></div><span class="meal-toggle">+</span></div>
+            <div class="meal-body">
+              <div class="food-item"><div class="food-hand">🤲</div><div class="food-main"><div class="food-name">🐟 Atún en agua (lata completa)</div><div class="food-ref">🤲 1 lata = ambas palmas juntas</div></div><div class="food-right"><div class="food-weight">120g escurrido</div><div class="food-kcal">132 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🤏</div><div class="food-main"><div class="food-name">🥑 Palta en rodajas</div><div class="food-ref">🤏 ¼ palta = 2 dedos de grosor</div></div><div class="food-right"><div class="food-weight">¼ palta · 50g</div><div class="food-kcal">80 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🍅 Tomate picado con cilantro</div><div class="food-ref">✊ 1 tomate = tu puño</div></div><div class="food-right"><div class="food-weight">1 unid · 100g</div><div class="food-kcal">22 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">🖐️</div><div class="food-main"><div class="food-name">🌮 Tortillas de maíz</div><div class="food-ref">🖐️ 1 tortilla = diámetro de tu mano</div></div><div class="food-right"><div class="food-weight">2 unid · 50g</div><div class="food-kcal">120 kcal</div></div></div>
+              <div class="food-item"><div class="food-hand">✊</div><div class="food-main"><div class="food-name">🫀 Betarraga cocida</div><div class="food-ref">✊ 1 taza = tu puño</div></div><div class="food-right"><div class="food-weight">1 taza · 140g</div><div class="food-kcal">75 kcal</div></div></div>
+              <div class="meal-note">📋 <strong>Prep dominical:</strong> cocina betarragas (5 días en fridge) · sopa de zapallo (jue–sáb) · pollo desmenuzado (mar y jue) · remoja lentejas para el viernes.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-scroll -->
+  </div><!-- /screen-plan -->
+
+  <!-- SCREEN: GUÍA DE MANOS -->
+  <div class="screen" id="screen-guide">
+    <div class="screen-title">📏 Guía de <em>Referencias</em> Visuales</div>
+    <div class="guide-scroll">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Tu mano es siempre proporcional a tu cuerpo — úsala como balanza personal en cualquier comida.</p>
+      <div class="hand-card"><div class="hand-emoji">✊</div><div class="hand-info"><div class="hand-name">Puño cerrado</div><div class="hand-measure">~150–200 ml · 1 taza</div><div class="hand-examples">Arroz cocido · pasta · legumbres · sopa · yogurt · frutas pequeñas</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">🖐️</div><div class="hand-info"><div class="hand-name">Palma abierta</div><div class="hand-measure">~100–130g proteína cocida</div><div class="hand-examples">Pollo · salmón · pavo · cerdo · pechuga. Sin los dedos = porción estándar.</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">🖐️ + dedos</div><div class="hand-info"><div class="hand-name">Palma abierta + dedos</div><div class="hand-measure">~130–150g proteína cocida</div><div class="hand-examples">Porción más generosa de proteína. Para los días con más actividad.</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">🤲</div><div class="hand-info"><div class="hand-name">Ambas palmas juntas</div><div class="hand-measure">~200–250g verduras cocidas</div><div class="hand-examples">Zapallo · zanahoria · zapallo italiano · betarraga · choclo · ensalada</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">🤏</div><div class="hand-info"><div class="hand-name">Puñado</div><div class="hand-measure">~20–30g frutos secos o semillas</div><div class="hand-examples">Almendras (10 unidades) · semillas de zapallo · semillas de maravilla · maní</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">👍</div><div class="hand-info"><div class="hand-name">Pulgar completo</div><div class="hand-measure">~15–20g grasa o queso</div><div class="hand-examples">Aceite de oliva · queso de cabra · mantequilla de maní · palta (¼)</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">☝️</div><div class="hand-info"><div class="hand-name">Dedo índice (largo)</div><div class="hand-measure">~5–10g · 1 cucharadita</div><div class="hand-examples">Linaza molida · aceite · jengibre rallado · merkén</div></div></div>
+      <div class="hand-card"><div class="hand-emoji">🤏</div><div class="hand-info"><div class="hand-name">2 dedos de grosor</div><div class="hand-measure">~50g palta · 30g queso</div><div class="hand-examples">¼ palta = 2 dedos de grosor de media palta cortada. 2 rodajas de queso.</div></div></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:4px;">
+        <div style="font-size:13px;font-weight:700;color:var(--sage);margin-bottom:10px;">🏢 Manos en el casino</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+          <strong style="color:var(--text)">Proteína:</strong> 🖐️ palma abierta (~120–150g)<br>
+          <strong style="color:var(--text)">Verdura:</strong> 🤲 ambas palmas (~200g)<br>
+          <strong style="color:var(--text)">Carbohidrato:</strong> ✊ tu puño cerrado (~120g)<br><br>
+          <em>Ordena siempre: proteína → verdura → carbohidrato</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RESUMEN -->
+  <div class="screen" id="screen-summary">
+    <div class="screen-title">📊 Resumen <em>Nutricional</em></div>
+    <div class="summary-scroll">
+
+      <div class="summary-card">
+        <h3>📈 Promedio Semanal</h3>
+        <div class="summary-row"><span class="label">Calorías</span><span class="value ok">~1.555 kcal/día</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:86%;background:linear-gradient(90deg,#7EC89A,#4A8C62)"></div></div>
+        <div class="summary-row" style="margin-top:10px"><span class="label">Proteína</span><span class="value ok">~98.5g/día ✅</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:82%;background:linear-gradient(90deg,#E8B86D,#A07840)"></div></div>
+        <div class="summary-row" style="margin-top:10px"><span class="label">Carbohidratos</span><span class="value ok">~149g/día ✅</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:75%;background:linear-gradient(90deg,#7EC89A,#4A8C62)"></div></div>
+        <div class="summary-row" style="margin-top:10px"><span class="label">Fibra</span><span class="value ok">~29.3g/día ⭐</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:90%;background:linear-gradient(90deg,#7EC89A,#2E5C3E)"></div></div>
+        <div class="summary-row" style="margin-top:10px"><span class="label">Sodio</span><span class="value ok">~1.107mg/día ✅</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:55%;background:linear-gradient(90deg,#7EC89A,#4A8C62)"></div></div>
+        <div class="summary-row" style="margin-top:10px"><span class="label">Grasas totales</span><span class="value ok">~61.7g/día ✅</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Predominio insaturadas: palta · salmón · almendras · aceite oliva · linaza</div>
+      </div>
+
+      <div class="summary-card">
+        <h3>🎯 Objetivos vs Realidad</h3>
+        <div class="summary-row"><span class="label">Kcal objetivo</span><span class="value ok">1.600–1.800 ✅ cercano</span></div>
+        <div class="summary-row"><span class="label">Proteína objetivo</span><span class="value ok">≥ 90g ✅ cumple</span></div>
+        <div class="summary-row"><span class="label">Carbohidrato objetivo</span><span class="value ok">150–200g ✅ cumple</span></div>
+        <div class="summary-row"><span class="label">Fibra objetivo</span><span class="value ok">≥ 25g ✅ supera</span></div>
+        <div class="summary-row"><span class="label">Sodio máximo</span><span class="value ok">< 2.000mg ✅ muy bien</span></div>
+        <div class="summary-row"><span class="label">Omega-3</span><span class="value ok">Salmón lun + linaza diaria ✅</span></div>
+      </div>
+
+      <div class="tip-card"><div class="tip-icon">🌱</div><div class="tip-body"><div class="tip-title">Linaza diaria</div><div class="tip-text">1 cucharadita molida cada mañana en el yogurt. El hábito más simple y efectivo para tu colesterol e hígado graso.</div></div></div>
+      <div class="tip-card"><div class="tip-icon">📋</div><div class="tip-body"><div class="tip-title">Prep dominical</div><div class="tip-text">Betarragas cocidas · sopa de zapallo · pollo desmenuzado · lentejas remojadas. Te resuelve 3–4 cenas de la semana.</div></div></div>
+      <div class="tip-card"><div class="tip-icon">🚶</div><div class="tip-body"><div class="tip-title">Caminata post almuerzo</div><div class="tip-text">10–15 minutos después del casino. La intervención más efectiva para tu resistencia a la insulina junto al plan.</div></div></div>
+      <div class="tip-card"><div class="tip-icon">💊</div><div class="tip-body"><div class="tip-title">Con Semaglutida</div><div class="tip-text">Come lento, porciones pequeñas. No bebas líquido en exceso durante la comida. Para cuando estés satisfecho, no lleno.</div></div></div>
+      <div class="tip-card"><div class="tip-icon">🏢</div><div class="tip-body"><div class="tip-title">Casino</div><div class="tip-text">No controlas el menú, sí controlas la porción y el orden. Proteína → verdura → carbohidrato. Siempre.</div></div></div>
+      <div class="tip-card"><div class="tip-icon">⚠️</div><div class="tip-body"><div class="tip-title">Aviso importante</div><div class="tip-text">Este plan es orientativo. Valida siempre con tu médico y nutricionista certificado considerando tus medicamentos.</div></div></div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showScreen('plan',this)">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Plan</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('guide',this)">
+      <span class="nav-icon">✋</span>
+      <span class="nav-label">Porciones</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('summary',this)">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Resumen</span>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ── DAY NAVIGATION ──
+function showDay(idx, btn) {
+  document.querySelectorAll('.day-view').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('day-' + idx).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  document.getElementById('plan-scroll').scrollTop = 0;
+  // Auto-open first card
+  const firstCard = document.getElementById('day-' + idx).querySelector('.meal-card');
+  if (firstCard && !firstCard.classList.contains('open')) firstCard.classList.add('open');
+}
+
+// ── CARD TOGGLE ──
+function toggleCard(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+// ── SCREEN NAVIGATION ──
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── AUTO-OPEN TODAY ──
+(function() {
+  const days = ['dom','lun','mar','mie','jue','vie','sab'];
+  const today = new Date().getDay();
+  const map = [6,0,1,2,3,4,5];
+  const idx = map[today];
+  const btn = document.querySelectorAll('.day-btn')[idx];
+  if (btn) showDay(idx, btn);
+})();
+
+// ── SWIPE BETWEEN DAYS ──
+let touchStartX = 0;
+const scroll = document.getElementById('plan-scroll');
+scroll.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+scroll.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) < 60) return;
+  const active = document.querySelector('.day-btn.active');
+  const btns = [...document.querySelectorAll('.day-btn')];
+  const idx = btns.indexOf(active);
+  if (dx < 0 && idx < 6) showDay(idx + 1, btns[idx + 1]);
+  if (dx > 0 && idx > 0) showDay(idx - 1, btns[idx - 1]);
+}, { passive: true });
+</script>
+</body>
+</html>
